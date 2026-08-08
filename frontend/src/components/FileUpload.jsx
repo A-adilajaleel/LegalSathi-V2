@@ -44,7 +44,7 @@ const FileUpload = () => {
 
   return (
     <div
-      className="min-h-screen bg-[#F7F1E5] flex items-center justify-center px-6 py-12 relative"
+      className="min-h-screen bg-[#F7F1E5] flex items-center justify-center px-6 py-12 relative "
       style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
     >
       <button
@@ -53,7 +53,7 @@ const FileUpload = () => {
         Back
       </button>
 
-      <div className="w-full max-w-2xl bg-[#EDE2CC] border border-[#DDD0B3] shadow-xl rounded-3xl p-8">
+<div className="w-full max-w-5xl bg-[#EDE2CC] border border-[#DDD0B3] shadow-xl rounded-3xl p-10">
 
         <h1
           className="text-4xl font-semibold text-center text-[#2F4A3B] mb-3"
