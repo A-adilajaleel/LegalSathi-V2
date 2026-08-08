@@ -8,7 +8,7 @@ Users can upload PDF or image documents, and the application extracts the text, 
 
 ## 🌐 Live Demo
 
-https://YOUR-FRONTEND-URL.vercel.app
+https://legal-sathi-v2.vercel.app/
 ---
 
 ## ✨ Features
