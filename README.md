@@ -1,0 +1,173 @@
+# ⚖️ Legal Sathi AI
+
+Legal Sathi AI is an AI-powered legal document assistant that helps users understand complex legal documents in simple and easy-to-understand language.
+
+Users can upload PDF or image documents, and the application extracts the text, analyzes it using AI, simplifies complex legal terminology, and provides explanations in multiple languages.
+
+---
+
+## ✨ Features
+
+- 📄 Upload PDF and Image documents
+- 🔍 OCR-based text extraction
+- 🤖 AI-powered legal document analysis
+- 📝 Simplifies complex legal terminology into plain English
+- 🌐 Translate analysis into:
+  - English
+  - Malayalam
+  - Hindi
+- ⚡ Fast document processing
+- 🔒 Secure document handling
+- 🎨 Clean and responsive user interface
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- React.js
+- Vite
+- Tailwind CSS
+- React Router
+- Axios
+- React Markdown
+
+### Backend
+
+- Django
+- Django REST Framework
+- Groq API (LLaMA)
+- PyMuPDF
+- Pillow
+- Python-dotenv
+
+---
+
+## 📂 Project Structure
+
+```
+LegalSathi-v2/
+│
+├── backend/
+│   ├── core/
+│   ├── documents/
+│   ├── manage.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
+```
+
+---
+
+## 🚀 How It Works
+
+1. Upload a legal document (PDF or Image).
+2. OCR extracts the document text.
+3. AI analyzes the legal content.
+4. Complex legal terminology is converted into simple English.
+5. Users can optionally translate the simplified analysis into Malayalam or Hindi.
+
+---
+
+## 🌍 Translation Support
+
+The AI first generates a simplified English explanation of the legal document.
+
+Users can then choose their preferred language:
+
+- 🇬🇧 English
+- 🇮🇳 Hindi
+- 🇮🇳 Malayalam
+
+Translations are generated on demand using AI and are usually available within a few seconds.
+
+---
+
+## 📸 Screenshots
+
+Add screenshots of:
+
+- Home Page
+- Upload Page
+- AI Analysis
+- Translation Feature
+
+---
+
+## ⚙️ Installation
+
+### Clone Repository
+
+```bash
+git clone https://github.com/A-adilajaleel/LegalSathi-V2.git
+```
+
+### Backend
+
+```bash
+cd backend
+
+python -m venv venv
+
+venv\Scripts\activate
+
+pip install -r requirements.txt
+
+python manage.py migrate
+
+python manage.py runserver
+```
+
+### Frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env` file inside the backend directory.
+
+```
+GROQ_API_KEY=your_groq_api_key
+```
+
+---
+
+## Future Improvements
+
+- Support more Indian languages
+- Document summarization
+- Voice explanation
+- Legal risk detection
+- Download AI-generated reports
+- Authentication and user dashboard
+- Document history
+
+---
+
+## 👩‍💻 Author
+
+**Adila Jaleel**
+
+GitHub:
+https://github.com/A-adilajaleel
+
+---
+
+## 📄 License
+
+This project is created for educational and portfolio purposes.
