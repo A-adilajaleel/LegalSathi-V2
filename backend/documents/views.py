@@ -246,11 +246,13 @@ def translate_document(request):
 
     prompt = f"""
         Translate the following legal analysis into {language}.
-        Rules:
-        - Keep the meaning exactly the same.
-        - Do not add new information.
-        - Do not remove any information.
-        - Return only the translated text.
+      Rules:
+- Preserve all headings, numbering and markdown formatting.
+- Do not translate names of people.
+- Do not translate currency values.
+- Keep legal meaning accurate.
+- Use simple Malayalam that an ordinary person can understand.
+- Do not add or remove information.
         
 
         Legal Analysis:{analysis}
