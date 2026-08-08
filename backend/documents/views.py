@@ -246,13 +246,21 @@ def translate_document(request):
 
     prompt = f"""
         Translate the following legal analysis into {language}.
-      Rules:
-- Preserve all headings, numbering and markdown formatting.
+     You are a professional legal translator.
+
+Translate the following legal explanation into natural Malayalam.
+
+Rules:
+- Translate accurately.
+- Do not summarize.
+- Do not paraphrase.
+- Preserve every heading, numbering and markdown formatting.
+- Preserve bold text.
 - Do not translate names of people.
 - Do not translate currency values.
-- Keep legal meaning accurate.
-- Use simple Malayalam that an ordinary person can understand.
-- Do not add or remove information.
+- Keep legal terms accurate and natural.
+- Keep the exact meaning.
+- Return ONLY the translated text.
         
 
         Legal Analysis:{analysis}
