@@ -264,12 +264,21 @@ Instructions:
 - Keep legal terminology accurate and natural.
 - Return ONLY the translated text.
 - Do NOT include explanations, notes, or comments.
+- Translate every sentence completely.
+- Never change the role of any person.
+- Never change Landlord and Tenant.
+- Never change names.
+- Never change numbers.
+- Never infer missing information.
+- If a sentence is unclear, translate it literally instead of guessing.
+- Preserve markdown formatting (**, headings, numbering, bullet points).
+- Output ONLY the translation.
         
 
         Legal Analysis:{analysis}
         """
     response = client.chat.completions.create(
-        model = "qwen/qwen3.6-27b",
+        model = "llama-3.3-70b-versatile",
         reasoning_effort="none",
         messages=[
             {
