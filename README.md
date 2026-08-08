@@ -18,7 +18,7 @@ https://legal-sathi-v2.vercel.app/
 - 📑 Text extraction from digital PDFs using PyMuPDF
 - 🤖 AI-powered legal document analysis
 - 📝 Simplifies complex legal terminology into plain English
-- 🌍 AI-powered translation support (English, Malayalam & Hindi)
+- 🌍 🌍 AI-powered translation support (Beta) (English, Malayalam & Hindi)
 - ⚡ Fast document processing
 - 🔒 Secure document handling
 
@@ -83,7 +83,7 @@ The application extracts the document text:
 
 ---
 
-## 🌍 Translation Support
+## 🌍 Translation Support(Beta)
 
 The AI first generates a simplified English explanation of the legal document.
 
@@ -94,6 +94,8 @@ Users can then choose their preferred language:
 - 🇮🇳 Malayalam
 
 Translations are generated on demand using AI and are usually available within a few seconds.
+
+> **Note:** AI-generated translations are experimental and may occasionally contain inaccuracies. For legal accuracy, always refer to the English analysis.
 
 ---
 
