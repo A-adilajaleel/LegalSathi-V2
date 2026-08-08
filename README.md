@@ -99,12 +99,21 @@ Translations are generated on demand using AI and are usually available within a
 
 ## 📸 Screenshots
 
-Add screenshots of:
+### 🏠 Home Page
 
-- Home Page
-- Upload Page
-- AI Analysis
-- Translation Feature
+![Home Page](assets/screenshots/HomePage.png)
+
+### 📤 Upload Page
+
+![Upload Page](assets/screenshots/uploadpage.png)
+
+### 🤖 AI Analysis
+
+![AI Analysis](assets/screenshots/analysis.png)
+
+### 🌍 Translation
+
+![Translation](assets/screenshots/translate.png)
 
 ---
 
