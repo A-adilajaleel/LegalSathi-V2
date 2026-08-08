@@ -26,6 +26,9 @@ def analyze_legal_text(extracted_text):
     3. Important Obligations
     4. Important Dates and Amounts
     5. Potential Risks
+- Mention only risks that can reasonably be inferred from the document.
+- Do not invent hypothetical risks.
+- If none are present, write "No explicit risks mentioned in the document."
 
     Important Rules:
     - Base the analysis only on information explicitly present in the document.
@@ -245,22 +248,22 @@ def translate_document(request):
         )
 
     prompt = f"""
-        Translate the following legal analysis into {language}.
-     You are a professional legal translator.
+       You are an expert legal translator.
+Translate the following legal analysis into {language}.
 
-Translate the following legal explanation into natural Malayalam.
+Instructions:
 
-Rules:
-- Translate accurately.
-- Do not summarize.
-- Do not paraphrase.
-- Preserve every heading, numbering and markdown formatting.
-- Preserve bold text.
-- Do not translate names of people.
-- Do not translate currency values.
-- Keep legal terms accurate and natural.
-- Keep the exact meaning.
+- Preserve the exact meaning.
+- Translate ONLY the given content.
+- Do NOT add, remove, summarize, or assume information.
+- Keep the same headings, numbering, and bullet points.
+- Use natural, fluent {language}.
+- Avoid literal word-for-word translation.
+- Do NOT mix English with {language} unless it is a proper noun.
+- Keep names, places, dates, and currency values unchanged.
+- Keep legal terminology accurate and natural.
 - Return ONLY the translated text.
+- Do NOT include explanations, notes, or comments.
         
 
         Legal Analysis:{analysis}
@@ -277,6 +280,14 @@ Rules:
     )
 
     translated_text = response.choices[0].message.content
+
+    translated_text = re.sub(
+    r"<think>.*?</think>",
+    "",
+    translated_text,
+    flags=re.DOTALL
+).strip()
+    
 
     return Response({
         "translated_text":translated_text
