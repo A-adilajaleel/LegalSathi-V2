@@ -8,17 +8,14 @@ Users can upload PDF or image documents, and the application extracts the text, 
 
 ## ✨ Features
 
-- 📄 Upload PDF and Image documents
-- 🔍 OCR-based text extraction
+- 📄 Upload legal documents in PDF or Image format
+- 👁️ Vision AI-powered text extraction for images and scanned PDFs
+- 📑 Text extraction from digital PDFs using PyMuPDF
 - 🤖 AI-powered legal document analysis
 - 📝 Simplifies complex legal terminology into plain English
-- 🌐 Translate analysis into:
-  - English
-  - Malayalam
-  - Hindi
+- 🌍 AI-powered translation support (English, Malayalam & Hindi)
 - ⚡ Fast document processing
 - 🔒 Secure document handling
-- 🎨 Clean and responsive user interface
 
 ---
 
@@ -69,8 +66,13 @@ LegalSathi-v2/
 ## 🚀 How It Works
 
 1. Upload a legal document (PDF or Image).
-2. OCR extracts the document text.
-3. AI analyzes the legal content.
+2. 
+The application extracts the document text:
+
+- Digital PDFs → using **PyMuPDF**
+- Images & Scanned PDFs → using a **Vision AI Model**
+  
+3.The extracted content is analyzed using an AI-powered Large Language Model (LLM).
 4. Complex legal terminology is converted into simple English.
 5. Users can optionally translate the simplified analysis into Malayalam or Hindi.
 
@@ -149,13 +151,11 @@ GROQ_API_KEY=your_groq_api_key
 
 ## Future Improvements
 
-- Support more Indian languages
-- Document summarization
-- Voice explanation
-- Legal risk detection
-- Download AI-generated reports
-- Authentication and user dashboard
-- Document history
+
+- 🔍 Legal Risk Detection
+- 📄 Download AI-Generated Reports
+- 👤 User Authentication & Dashboard
+- 📂 Document History
 
 ---
 
