@@ -29,7 +29,7 @@ const FileUpload = () => {
       formData.append("file", file);
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/upload/",
+        "https://legalsathi-v2-backend.onrender.com/api/upload/",
         formData
       )
 

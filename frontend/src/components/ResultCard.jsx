@@ -21,7 +21,7 @@ const ResultCard = ({ result }) => {
     }
 
     const response = await axios.post(
-      "http://127.0.0.1:8000/api/translate/",
+      "https://legalsathi-v2-backend.onrender.com/api/translate/",
       {
         analysis: result.analysis,
         language: selectedLanguage,
