@@ -6,6 +6,11 @@ Users can upload PDF or image documents, and the application extracts the text, 
 
 ---
 
+## 🌐 Live Demo
+
+https://YOUR-FRONTEND-URL.vercel.app
+---
+
 ## ✨ Features
 
 - 📄 Upload legal documents in PDF or Image format
