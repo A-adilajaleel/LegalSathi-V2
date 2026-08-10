@@ -6,33 +6,38 @@ import axios from "axios"
 
 
 const ResultCard = ({ result }) => {
+const [language, setLanguage] = useState("english")
+const [translatedAnalysis, setTranslatedAnalysis] = useState("")
+const [translations, setTranslations] = useState({})
 
-  const[language,setLanguage] = useState("english")
+ const handleTranslate = async (selectedLanguage) => {
+  setLanguage(selectedLanguage);
 
-  const[translatedAnalysis, setTranslatedAnalysis] = useState("")
+  if (selectedLanguage === "english") {
+    setTranslatedAnalysis("");
+    return;
+  }
 
-  const handleTranslate = async (selectedLanguage) => {
+  if (translations[selectedLanguage]) {
+    setTranslatedAnalysis(translations[selectedLanguage]);
+    return;
+  }
+
   try {
-    setLanguage(selectedLanguage);
-
-    if (selectedLanguage === "english") {
-      setTranslatedAnalysis("");
-      return;
-    }
-
     const response = await axios.post(
       "https://legalsathi-v2-backend.onrender.com/api/translate/",
       {
         analysis: result.analysis,
         language: selectedLanguage,
       }
-    )
+    );
 
     setTranslatedAnalysis(response.data.translated_text);
+    setTranslations(prev => ({ ...prev, [selectedLanguage]: response.data.translated_text }));
 
   } catch (error) {
     console.log(error);
-    alert("Translation failed")
+    alert("Translation failed");
   }
 }
 
