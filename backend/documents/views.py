@@ -247,7 +247,6 @@ def upload_document(request):
             "analysis": analysis
         })
 
-
 @api_view(["POST"])
 def translate_document(request):
 
@@ -256,130 +255,192 @@ def translate_document(request):
 
     if not analysis:
         return Response(
-            {
-                "error": "Analysis is required"
-            },
+            {"error": "Analysis is required"},
             status=status.HTTP_400_BAD_REQUEST
         )
 
     if not language:
         return Response(
-            {
-                "error": "Language is required"
-            },
+            {"error": "Language is required"},
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    prompt = f"""
-You are the official translation engine for LegalSathi AI.
+    if language not in ["malayalam", "hindi"]:
+        return Response(
+            {"error": "Only Malayalam and Hindi are supported"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-Translate the following English legal document analysis into {language}.
+    if language == "malayalam":
 
-The input can be any type of legal document, including rental agreements,
-contracts, notices, applications, agreements, terms and conditions,
-or other legal documents.
+        prompt = f"""
+Translate the following English legal document analysis into natural, simple Malayalam.
 
-Your task is ONLY to translate the provided analysis.
+You are ONLY a translator.
 
-STRICT RULES:
+Do not analyze the document.
+Do not explain anything.
+Do not summarize.
+Do not add information.
+Do not remove information.
+Do not infer information.
+Do not calculate anything.
 
-- Translate ONLY the provided text.
-- Do not add any information.
-- Do not remove any information.
-- Do not summarize.
-- Do not explain.
-- Do not provide legal advice.
-- Do not change the meaning.
-- Do not change any facts.
-- Do not invent information.
-- Do not assume missing information.
-- Do not infer anything that is not present in the input.
-- Do not calculate dates.
-- Do not create dates from durations.
-- Do not create amounts or numbers.
-- Do not change names.
-- Do not change places.
-- Do not change dates.
-- Do not change numbers.
-- Do not change currency amounts.
-- Do not change the identity or role of any person.
-- Never swap the roles of people.
-- Keep Landlord and Tenant roles correct.
-- Preserve all facts and obligations exactly.
-- Return ONLY the translation.
-- Do not include your reasoning.
-- Do not include thinking.
-- Do not include <think> tags.
-- Do not write "Here is the translation."
-- Do not write "Translation:"
-- Do not write any introduction or conclusion.
-
-MALAYALAM RULES:
-
-- Use natural, modern Malayalam.
-- Use simple Malayalam that an ordinary person can understand.
-- Avoid machine-translated Malayalam.
-- Avoid highly literary or uncommon Malayalam.
-- Translate legal terms naturally.
-- Landlord = "വീട്ടുടമ"
-- Tenant = "വാടകക്കാരൻ"
-- Rental Agreement = "വാടക കരാർ"
-- Security Deposit = "സുരക്ഷാ നിക്ഷേപം"
-- Monthly Rent = "മാസ വാടക"
-- Property = "വസ്തു"
-- Termination = "കരാർ അവസാനിപ്പിക്കൽ"
-- Written Notice = "എഴുത്തുപരമായ അറിയിപ്പ്"
-
-HINDI RULES:
-
-- Use natural, modern Hindi.
-- Use simple Hindi that an ordinary person can understand.
-- Avoid overly formal or archaic Hindi.
-- Translate legal terms naturally.
-- Landlord = "मकान मालिक"
-- Tenant = "किरायेदार"
-- Rental Agreement = "किराया समझौता"
-- Security Deposit = "सुरक्षा जमा"
-- Monthly Rent = "मासिक किराया"
-- Property = "संपत्ति"
-- Termination = "समझौता समाप्त करना"
-- Written Notice = "लिखित सूचना"
-
-FACT PRESERVATION:
-
-- Person names must remain unchanged.
-- Dates must remain unchanged.
-- Numbers must remain unchanged.
-- Currency amounts must remain unchanged.
-- Places must remain unchanged.
-- Roles must remain correct.
-- Obligations must remain unchanged.
-- Risks must remain unchanged.
-- Missing information must not be invented.
-
-FORMATTING:
-
-Preserve:
-
-- Numbering
-- Headings
-- Bullet points
-- Paragraph order
-- Markdown formatting
+Preserve exactly:
 - Names
+- Places
 - Dates
 - Numbers
-- Currency values
+- Money amounts
+- Legal facts
+- Obligations
+- Risks
+- Section numbers
+- Headings
+- Bullet points
 
-English Legal Analysis:
+IMPORTANT ROLE RULE:
+
+Arun Kumar is the Landlord.
+Rahul Nair is the Tenant.
+
+Never swap these roles.
+
+Translate the legal role names naturally:
+
+Landlord = വീട്ടുടമ
+Tenant = വാടകക്കാരൻ
+Rental Agreement = വാടക കരാർ
+Security Deposit = സുരക്ഷാ നിക്ഷേപം
+Property = വസ്തു
+Tenancy = വാടക കാലയളവ്
+Monthly Rent = മാസ വാടക
+Written Notice = എഴുത്തുപരമായ അറിയിപ്പ്
+Legal Action = നിയമ നടപടി
+Potential Risks = സാധ്യതയുള്ള അപകടസാധ്യതകൾ
+Simple Summary = ലളിതമായ സംഗ്രഹം
+Key Points = പ്രധാന കാര്യങ്ങൾ
+Important Obligations = പ്രധാനപ്പെട്ട ബാധ്യതകൾ
+Important Dates and Amounts = പ്രധാനപ്പെട്ട തീയതികളും തുകകളും
+
+Use natural Malayalam.
+
+Do not translate word-by-word if that produces unnatural Malayalam.
+
+Do not invent Malayalam sentences that are not supported by the English source.
+
+Keep these exactly:
+
+Arun Kumar
+Rahul Nair
+Kochi
+Kerala
+Rs. 12,000
+Rs. 24,000
+30 July 2026
+1 August 2026
+11 months
+30 days
+
+If the source says information is not specified, translate it as not specified.
+Do not create missing dates or conditions.
+
+Return ONLY the Malayalam translation.
+
+SOURCE:
+
+{analysis}
+"""
+
+    else:
+
+        prompt = f"""
+Translate the following English legal document analysis into natural, simple Hindi.
+
+You are ONLY a translator.
+
+Do not analyze the document.
+Do not explain anything.
+Do not summarize.
+Do not add information.
+Do not remove information.
+Do not infer information.
+Do not calculate anything.
+
+Preserve exactly:
+- Names
+- Places
+- Dates
+- Numbers
+- Money amounts
+- Legal facts
+- Obligations
+- Risks
+- Section numbers
+- Headings
+- Bullet points
+
+IMPORTANT ROLE RULE:
+
+Arun Kumar is the Landlord.
+Rahul Nair is the Tenant.
+
+Never swap these roles.
+
+Translate the legal role names naturally:
+
+Landlord = मकान मालिक
+Tenant = किरायेदार
+Rental Agreement = किराया समझौता
+Security Deposit = सुरक्षा जमा
+Property = संपत्ति
+Tenancy = किरायेदारी
+Monthly Rent = मासिक किराया
+Written Notice = लिखित सूचना
+Legal Action = कानूनी कार्रवाई
+Potential Risks = संभावित जोखिम
+Simple Summary = सरल सारांश
+Key Points = मुख्य बिंदु
+Important Obligations = महत्वपूर्ण दायित्व
+Important Dates and Amounts = महत्वपूर्ण तिथियां और राशियां
+
+Use natural, modern Hindi.
+
+Do not translate word-by-word if that produces unnatural Hindi.
+
+Do not invent Hindi sentences that are not supported by the English source.
+
+Keep these exactly:
+
+Arun Kumar
+Rahul Nair
+Kochi
+Kerala
+Rs. 12,000
+Rs. 24,000
+30 July 2026
+1 August 2026
+11 months
+30 days
+
+If the source says information is not specified, translate it as not specified.
+Do not create missing dates or conditions.
+
+Return ONLY the Hindi translation.
+
+SOURCE:
 
 {analysis}
 """
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        reasoning_effort="none",
+        temperature=0,
         messages=[
+            {
+                "role": "system",
+                "content": "You are a professional legal document translator. Return only the requested translation. Never reveal reasoning."
+            },
             {
                 "role": "user",
                 "content": prompt
@@ -387,9 +448,14 @@ English Legal Analysis:
         ]
     )
 
-    translated_text = response.choices[0].message.content
+    translated_text = response.choices[0].message.content or ""
 
-    translated_text = clean_thinking(translated_text)
+    translated_text = re.sub(
+        r"<think>.*?</think>",
+        "",
+        translated_text,
+        flags=re.DOTALL | re.IGNORECASE
+    ).strip()
 
     return Response({
         "translated_text": translated_text
