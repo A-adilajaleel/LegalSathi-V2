@@ -28,14 +28,19 @@ def analyze_legal_text(extracted_text):
     5. Potential Risks
 - Mention only risks that can reasonably be inferred from the document.
 - Do not invent hypothetical risks.
-- If none are present, write "No explicit risks mentioned in the document."
+- If none are present, write "No explicit risks mentioned in the document.
+
 
     Important Rules:
-    - Base the analysis only on information explicitly present in the document.
-    - Do not invent or assume any legal rights, obligations, dates, amounts, or facts.
-    - If important information is missing, say "Not specified in the document."
-    - Clearly distinguish facts in the document from potential risks.
-    - Do not provide legal advice.
+- Base the analysis only on information explicitly present in the document.
+- Do not invent or assume any legal rights, obligations, dates, amounts, or facts.
+- Never calculate dates from durations.
+- Never infer an end date unless it is explicitly written.
+- Never infer obligations that are not explicitly stated.
+- Never add risks that are based on assumptions.
+- If information is missing, write "Not specified in the document."
+- If a fact is not directly written in the document, do not mention it.
+- Do not provide legal advice.
 
     Legal Document:
     {extracted_text}
