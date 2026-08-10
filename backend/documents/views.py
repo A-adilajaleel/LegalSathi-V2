@@ -246,7 +246,6 @@ def upload_document(request):
             "text": extracted_text,
             "analysis": analysis
         })
-
 @api_view(["POST"])
 def translate_document(request):
 
@@ -265,198 +264,136 @@ def translate_document(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    language = language.lower().strip()
+
     if language not in ["malayalam", "hindi"]:
         return Response(
             {"error": "Only Malayalam and Hindi are supported"},
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    if language == "malayalam":
+    prompt = f"""
+You are a professional legal document translator.
 
-        prompt = f"""
-Translate the following English legal document analysis into natural, simple Malayalam.
+Translate the following English legal document analysis into {language}.
 
-You are ONLY a translator.
+Your task is ONLY to translate the provided text.
 
-Do not analyze the document.
-Do not explain anything.
-Do not summarize.
-Do not add information.
-Do not remove information.
-Do not infer information.
-Do not calculate anything.
+STRICT RULES:
 
-Preserve exactly:
-- Names
-- Places
-- Dates
-- Numbers
-- Money amounts
-- Legal facts
-- Obligations
-- Risks
-- Section numbers
-- Headings
-- Bullet points
+- Translate ONLY the provided source text.
+- Do not analyze the document.
+- Do not explain the document.
+- Do not summarize the document.
+- Do not add any information.
+- Do not remove any information.
+- Do not invent information.
+- Do not assume missing information.
+- Do not infer information.
+- Do not calculate anything.
+- Do not create dates, amounts, facts, obligations, or risks.
+- Do not provide legal advice.
+- Preserve the exact meaning of the source text.
+- Preserve all facts and details.
+- Preserve all names exactly.
+- Preserve all places exactly.
+- Preserve all dates exactly.
+- Preserve all numbers exactly.
+- Preserve all currency amounts exactly.
+- Preserve all legal obligations exactly.
+- Preserve all risks exactly.
+- Preserve the identity and role of every person correctly.
+- Never swap the roles of people.
+- Never change the relationship between people and their legal roles.
+- Preserve the same section numbers.
+- Preserve the same headings.
+- Preserve the same bullet points.
+- Preserve the same paragraph order.
+- Preserve markdown formatting.
 
-IMPORTANT ROLE RULE:
+LANGUAGE RULES:
 
-Arun Kumar is the Landlord.
-Rahul Nair is the Tenant.
+- Use natural, modern {language}.
+- Use simple and easy-to-understand {language}.
+- Avoid unnatural machine-translated language.
+- Do not translate word-for-word when it produces unnatural sentences.
+- Use appropriate and natural legal terminology.
+- Keep proper names unchanged.
+- Keep places unchanged.
+- Keep dates unchanged.
+- Keep numbers unchanged.
+- Keep currency values unchanged.
 
-Never swap these roles.
+ROLE RULE:
 
-Translate the legal role names naturally:
+Legal roles such as Landlord, Tenant, Owner, Buyer, Seller, Employer, Employee, Applicant, Respondent, Plaintiff, Defendant, or any other role must remain associated with the correct person.
 
-Landlord = വീട്ടുടമ
-Tenant = വാടകക്കാരൻ
-Rental Agreement = വാടക കരാർ
-Security Deposit = സുരക്ഷാ നിക്ഷേപം
-Property = വസ്തു
-Tenancy = വാടക കാലയളവ്
-Monthly Rent = മാസ വാടക
-Written Notice = എഴുത്തുപരമായ അറിയിപ്പ്
-Legal Action = നിയമ നടപടി
-Potential Risks = സാധ്യതയുള്ള അപകടസാധ്യതകൾ
-Simple Summary = ലളിതമായ സംഗ്രഹം
-Key Points = പ്രധാന കാര്യങ്ങൾ
-Important Obligations = പ്രധാനപ്പെട്ട ബാധ്യതകൾ
-Important Dates and Amounts = പ്രധാനപ്പെട്ട തീയതികളും തുകകളും
+Never swap or confuse legal roles.
 
-Use natural Malayalam.
+OUTPUT RULES:
 
-Do not translate word-by-word if that produces unnatural Malayalam.
+- Return ONLY the translated text.
+- Do not include reasoning.
+- Do not include thinking.
+- Do not include analysis.
+- Do not include <think> tags.
+- Do not write "Here is the translation".
+- Do not write "Translation:".
+- Do not add an introduction.
+- Do not add a conclusion.
+- Do not add notes or comments.
 
-Do not invent Malayalam sentences that are not supported by the English source.
-
-Keep these exactly:
-
-Arun Kumar
-Rahul Nair
-Kochi
-Kerala
-Rs. 12,000
-Rs. 24,000
-30 July 2026
-1 August 2026
-11 months
-30 days
-
-If the source says information is not specified, translate it as not specified.
-Do not create missing dates or conditions.
-
-Return ONLY the Malayalam translation.
-
-SOURCE:
+SOURCE TEXT:
 
 {analysis}
 """
 
-    else:
+    try:
 
-        prompt = f"""
-Translate the following English legal document analysis into natural, simple Hindi.
+        response = client.chat.completions.create(
+            model="qwen/qwen3.6-27b",
+            reasoning_effort="none",
+            temperature=0,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a professional legal document translator. Return only the translation. Never reveal reasoning or thinking."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
 
-You are ONLY a translator.
+        translated_text = response.choices[0].message.content or ""
 
-Do not analyze the document.
-Do not explain anything.
-Do not summarize.
-Do not add information.
-Do not remove information.
-Do not infer information.
-Do not calculate anything.
+        translated_text = clean_thinking(translated_text)
 
-Preserve exactly:
-- Names
-- Places
-- Dates
-- Numbers
-- Money amounts
-- Legal facts
-- Obligations
-- Risks
-- Section numbers
-- Headings
-- Bullet points
+        translated_text = re.sub(
+            r"(?i)^(here is the translation:|translation:|translated text:)\s*",
+            "",
+            translated_text
+        ).strip()
 
-IMPORTANT ROLE RULE:
+        if not translated_text:
+            return Response(
+                {"error": "Translation returned empty text"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-Arun Kumar is the Landlord.
-Rahul Nair is the Tenant.
+        return Response({
+            "translated_text": translated_text
+        })
 
-Never swap these roles.
+    except Exception as e:
 
-Translate the legal role names naturally:
+        print("Translation Error:", str(e))
 
-Landlord = मकान मालिक
-Tenant = किरायेदार
-Rental Agreement = किराया समझौता
-Security Deposit = सुरक्षा जमा
-Property = संपत्ति
-Tenancy = किरायेदारी
-Monthly Rent = मासिक किराया
-Written Notice = लिखित सूचना
-Legal Action = कानूनी कार्रवाई
-Potential Risks = संभावित जोखिम
-Simple Summary = सरल सारांश
-Key Points = मुख्य बिंदु
-Important Obligations = महत्वपूर्ण दायित्व
-Important Dates and Amounts = महत्वपूर्ण तिथियां और राशियां
-
-Use natural, modern Hindi.
-
-Do not translate word-by-word if that produces unnatural Hindi.
-
-Do not invent Hindi sentences that are not supported by the English source.
-
-Keep these exactly:
-
-Arun Kumar
-Rahul Nair
-Kochi
-Kerala
-Rs. 12,000
-Rs. 24,000
-30 July 2026
-1 August 2026
-11 months
-30 days
-
-If the source says information is not specified, translate it as not specified.
-Do not create missing dates or conditions.
-
-Return ONLY the Hindi translation.
-
-SOURCE:
-
-{analysis}
-"""
-
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        temperature=0,
-        messages=[
+        return Response(
             {
-                "role": "system",
-                "content": "You are a professional legal document translator. Return only the requested translation. Never reveal reasoning."
+                "error": "Translation failed",
+                "details": str(e)
             },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    )
-
-    translated_text = response.choices[0].message.content or ""
-
-    translated_text = re.sub(
-        r"<think>.*?</think>",
-        "",
-        translated_text,
-        flags=re.DOTALL | re.IGNORECASE
-    ).strip()
-
-    return Response({
-        "translated_text": translated_text
-    })
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
