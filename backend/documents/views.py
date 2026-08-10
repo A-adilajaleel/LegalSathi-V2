@@ -1,96 +1,50 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
-
 import os
 import fitz
 import base64
 import re
-
 from groq import Groq
 from dotenv import load_dotenv
 from PIL import Image
 from io import BytesIO
-
+from rest_framework import status
 
 load_dotenv()
 
 groq_api_key = os.getenv("GROQ_API_KEY")
-
-client = Groq(
-    api_key=groq_api_key
-)
-
-
-def clean_ai_response(text):
-
-    if not text:
-        return ""
-
-    text = re.sub(
-        r"<think>.*?</think>",
-        "",
-        text,
-        flags=re.DOTALL | re.IGNORECASE
-    )
-
-    return text.strip()
+client = Groq(api_key=groq_api_key)
 
 
 def analyze_legal_text(extracted_text):
-
     prompt = f"""
-You are LegalSathi AI.
+    Analyze the following legal document and explain it in simple language.
 
-Your job is to explain legal documents in very simple,
-easy-to-understand English for ordinary people.
+    Provide:
+    1. Simple Summary
+    2. Key Points
+    3. Important Obligations
+    4. Important Dates and Amounts
+    5. Potential Risks
+- Mention only risks that can reasonably be inferred from the document.
+- Do not invent hypothetical risks.
+- If none are present, write "No explicit risks mentioned in the document."
 
-Analyze ONLY the information explicitly present in the
-provided legal document.
 
-Do NOT provide legal advice.
+    Important Rules:
+- Base the analysis only on information explicitly present in the document.
+- Do not invent or assume any legal rights, obligations, dates, amounts, or facts.
+- Never calculate dates from durations.
+- Never infer an end date unless it is explicitly written.
+- Never infer obligations that are not explicitly stated.
+- Never add risks that are based on assumptions.
+- If information is missing, write "Not specified in the document."
+- If a fact is not directly written in the document, do not mention it.
+- Do not provide legal advice.
 
-Use exactly this structure:
-
-1. Simple Summary
-
-2. Key Points
-
-3. Important Obligations
-
-4. Important Dates and Amounts
-
-5. Potential Risks
-
-IMPORTANT RULES:
-
-- Use ONLY facts explicitly written in the document.
-- Do NOT invent any information.
-- Do NOT assume any missing information.
-- Do NOT calculate dates from durations.
-- Do NOT infer an end date from a duration.
-- If an end date is not explicitly written, write:
-  "Not specified in the document."
-- Do NOT infer obligations that are not explicitly written.
-- Do NOT invent rights or responsibilities.
-- Do NOT invent risks.
-- Mention a risk only when it is directly supported by
-  something written in the document.
-- If no explicit risk is mentioned, write:
-  "No explicit risks mentioned in the document."
-- Do NOT provide legal advice.
-- Keep all names exactly as written.
-- Keep all dates exactly as written.
-- Keep all numbers and currency amounts exactly as written.
-- Keep the roles of people correct.
-- Do not confuse Landlord and Tenant.
-
-Use simple everyday English.
-
-Legal Document:
-
-{extracted_text}
-"""
+    Legal Document:
+    {extracted_text}
+    """
 
     response = client.chat.completions.create(
         model="qwen/qwen3.6-27b",
@@ -105,12 +59,18 @@ Legal Document:
 
     analysis = response.choices[0].message.content
 
-    return clean_ai_response(analysis)
+    analysis = re.sub(
+        r"<think>.*?</think>",
+        "",
+        analysis,
+        flags=re.DOTALL
+    ).strip()
+
+    return analysis
 
 
 @api_view(["GET"])
 def home(request):
-
     return Response({
         "message": "LegalSathi API is running"
     })
@@ -118,46 +78,25 @@ def home(request):
 
 @api_view(["POST"])
 def upload_document(request):
-
     uploaded_file = request.FILES.get("file")
 
     if not uploaded_file:
-        return Response(
-            {
-                "error": "No file uploaded"
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
+        return Response({
+             "error": "No file uploaded"
+        }, status=400)
+    
     if uploaded_file.size > 10 * 1024 * 1024:
-        return Response(
-            {
-                "error": "File size must be less than 10 MB."
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+       return Response({
+        "error": "File size must be less than 10 MB."
+    }, status=400)
 
-    file_extension = os.path.splitext(
-        uploaded_file.name
-    )[1].lower()
-
-    allowed_extensions = [
-        ".pdf",
-        ".jpeg",
-        ".jpg",
-        ".png"
-    ]
+    file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+    allowed_extensions = [".pdf", ".jpeg", ".jpg", ".png"]
 
     if file_extension not in allowed_extensions:
-        return Response(
-            {
-                "error": (
-                    "Only PDF, JPEG, JPG and PNG "
-                    "files are allowed"
-                )
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({
+            "error": "Only PDF, JPEG, JPG and PNG files are allowed"
+        }, status=400)
 
     if file_extension == ".pdf":
 
@@ -172,47 +111,27 @@ def upload_document(request):
             extracted_text += page.get_text()
 
         if not extracted_text.strip():
-
             extracted_text = ""
 
             for page in pdf_document:
-
                 pix = page.get_pixmap()
-
                 image_bytes = pix.tobytes("png")
-
-                image_base64 = base64.b64encode(
-                    image_bytes
-                ).decode("utf-8")
+                image_base64 = base64.b64encode(image_bytes).decode("utf-8")
 
                 response = client.chat.completions.create(
                     model="qwen/qwen3.6-27b",
-                    reasoning_effort="none",
                     messages=[
                         {
                             "role": "user",
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": """
-Extract ALL visible text from this
-legal document image.
-
-Return ONLY the extracted text.
-
-Do not summarize.
-Do not explain.
-Do not add information.
-Do not translate.
-Preserve names, dates, numbers,
-and amounts exactly as visible.
-"""
+                                    "text": "Extract all text from this legal document image. Return only the extracted text."
                                 },
                                 {
                                     "type": "image_url",
                                     "image_url": {
-                                        "url":
-                                        f"data:image/png;base64,{image_base64}"
+                                        "url": f"data:image/png;base64,{image_base64}"
                                     }
                                 }
                             ]
@@ -222,56 +141,40 @@ and amounts exactly as visible.
 
                 page_text = response.choices[0].message.content
 
-                page_text = clean_ai_response(
-                    page_text
-                )
+                page_text = re.sub(
+                    r"<think>.*?</think>",
+                    "",
+                    page_text,
+                    flags=re.DOTALL
+                ).strip()
 
                 extracted_text += page_text + "\n"
 
         extracted_text = extracted_text.strip()
-
         if not extracted_text:
-            return Response(
-                {
-                    "error":
-                    "No readable text found in the document."
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({
+                "error": "No readable text found in the document."
+            }, status=400)
+       
 
-        analysis = analyze_legal_text(
-            extracted_text
-        )
+        analysis = analyze_legal_text(extracted_text)
 
-        return Response(
-            {
-                "message":
-                "Document processed successfully",
-                "filename":
-                uploaded_file.name,
-                "text":
-                extracted_text,
-                "analysis":
-                analysis
-            }
-        )
+        return Response({
+            "message": "Document processed successfully",
+            "filename": uploaded_file.name,
+            "text": extracted_text,
+            "analysis": analysis
+        })
 
-    if file_extension in [
-        ".jpg",
-        ".jpeg",
-        ".png"
-    ]:
+   
+    if file_extension in [".jpg", ".jpeg", ".png"]:
 
-        image = Image.open(
-            uploaded_file
-        )
+        image = Image.open(uploaded_file)
 
         if image.mode != "RGB":
             image = image.convert("RGB")
 
-        image.thumbnail(
-            (1024, 1024)
-        )
+        image.thumbnail((1024, 1024))
 
         buffer = BytesIO()
 
@@ -287,32 +190,18 @@ and amounts exactly as visible.
 
         response = client.chat.completions.create(
             model="qwen/qwen3.6-27b",
-            reasoning_effort="none",
             messages=[
                 {
                     "role": "user",
                     "content": [
                         {
                             "type": "text",
-                            "text": """
-Extract ALL visible text from this
-legal document image.
-
-Return ONLY the extracted text.
-
-Do not summarize.
-Do not explain.
-Do not add information.
-Do not translate.
-Preserve names, dates, numbers,
-and amounts exactly as visible.
-"""
+                            "text": "Extract all text from this legal document image. Return only the extracted text."
                         },
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url":
-                                f"data:image/jpeg;base64,{image_base64}"
+                                "url": f"data:image/jpeg;base64,{image_base64}"
                             }
                         }
                     ]
@@ -322,250 +211,188 @@ and amounts exactly as visible.
 
         extracted_text = response.choices[0].message.content
 
-        extracted_text = clean_ai_response(
-            extracted_text
-        )
+        extracted_text = re.sub(
+            r"<think>.*?</think>",
+            "",
+            extracted_text,
+            flags=re.DOTALL
+        ).strip()
+
 
         if not extracted_text:
-            return Response(
-                {
-                    "error":
-                    "No readable text found in the document."
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({
+                "error": "No readable text found in the document."
+            }, status=400)
 
-        analysis = analyze_legal_text(
-            extracted_text
-        )
+        analysis = analyze_legal_text(extracted_text)
 
-        return Response(
-            {
-                "message":
-                "Document processed successfully",
-                "filename":
-                uploaded_file.name,
-                "text":
-                extracted_text,
-                "analysis":
-                analysis
-            }
-        )
-
-
-@api_view(["POST"])
+        return Response({
+            "message": "Document processed successfully",
+            "filename": uploaded_file.name,
+            "text": extracted_text,
+            "analysis": analysis
+        })
+@api_view(['POST'])
 def translate_document(request):
-
     analysis = request.data.get("analysis")
     language = request.data.get("language")
 
     if not analysis:
         return Response(
             {
-                "error": "Analysis is required"
+                "error":"Analysis is required"
             },
-            status=status.HTTP_400_BAD_REQUEST
+            status = status.HTTP_400_BAD_REQUEST
         )
-
     if not language:
         return Response(
             {
-                "error": "Language is required"
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    allowed_languages = [
-        "english",
-        "malayalam",
-        "hindi"
-    ]
-
-    if language.lower() not in allowed_languages:
-        return Response(
-            {
-                "error":
-                "Supported languages are English, Malayalam and Hindi."
+                "error":"Language is required"
             },
             status=status.HTTP_400_BAD_REQUEST
         )
 
     prompt = f"""
-You are the official translation engine for LegalSathi AI.
+       You are the official translation engine for LegalSathi AI.
 
-Translate the following English legal analysis into {language}.
+Translate the following English legal document analysis into {language}.
 
-Translate ONLY the provided analysis.
+The input may be any type of legal document, including rental
+agreements, contracts, notices, applications, agreements,
+terms and conditions, or other legal documents.
 
-Do NOT add information.
-Do NOT remove information.
-Do NOT summarize.
-Do NOT explain.
-Do NOT give legal advice.
-Do NOT change the meaning.
-Do NOT change any fact.
+Your task is ONLY to translate the provided analysis.
 
-ROLE AND NAME RULES:
+STRICT RULES:
 
-Never change the identity of any person.
+- Translate ONLY the provided text.
+- Do not add any information.
+- Do not remove any information.
+- Do not summarize.
+- Do not explain.
+- Do not provide legal advice.
+- Do not change the meaning.
+- Do not change any facts.
+- Do not invent information.
+- Do not assume missing information.
+- Do not infer anything that is not present in the input.
+- Do not calculate dates.
+- Do not create dates from durations.
+- Do not create amounts or numbers.
+- Do not change names.
+- Do not change places.
+- Do not change dates.
+- Do not change numbers.
+- Do not change currency amounts.
+- Do not change the identity or role of any person.
+- Never swap the roles of people.
+- Keep Landlord and Tenant roles correct whenever they appear.
+- Preserve all facts and obligations exactly.
 
-Never swap the roles of people.
-
-Landlord means the person who owns or rents out the property.
-
-Tenant means the person who rents the property.
+LANGUAGE RULES:
 
 For Malayalam:
-
-Landlord = വീട്ടുടമ
-Tenant = വാടകക്കാരൻ
-Rental Agreement = വാടക കരാർ
-Termination = കരാർ അവസാനിപ്പിക്കൽ
-Security Deposit = സുരക്ഷാ നിക്ഷേപം
-Monthly Rent = മാസ വാടക
-Property = വസ്തു
-
-Do NOT translate Landlord as:
-ജമീന്ദാർ
-ജന്മി
-ഉടമസ്ഥൻ
-
-Use ONLY:
-വീട്ടുടമ
-
-Do NOT translate Tenant as:
-ഭാടക്കാരൻ
-പാട്ടക്കാരൻ
-അപ്പാർട്ട്മെന്റ് അധിവാസി
-പാട്ടുകാരൻ
-
-Use ONLY:
-വാടകക്കാരൻ
+- Use natural, modern Malayalam.
+- Use simple Malayalam that an ordinary person can understand.
+- Avoid machine-translated Malayalam.
+- Avoid highly literary or uncommon Malayalam.
+- Translate legal terms naturally.
+- Do not use incorrect Malayalam alternatives for legal roles.
+- Landlord should be translated as "വീട്ടുടമ".
+- Tenant should be translated as "വാടകക്കാരൻ".
+- Rental Agreement should be translated as "വാടക കരാർ".
+- Security Deposit should be translated as "സുരക്ഷാ നിക്ഷേപം".
+- Monthly Rent should be translated as "മാസ വാടക".
+- Property should be translated as "വസ്തു".
+- Termination should be translated as "കരാർ അവസാനിപ്പിക്കൽ".
+- Written Notice should be translated as "എഴുത്തുപരമായ അറിയിപ്പ്".
 
 For Hindi:
+- Use natural, modern Hindi.
+- Use simple Hindi that an ordinary person can understand.
+- Avoid overly formal or archaic Hindi.
+- Translate legal terms naturally.
+- Landlord should be translated as "मकान मालिक".
+- Tenant should be translated as "किरायेदार".
+- Rental Agreement should be translated as "किराया समझौता".
+- Security Deposit should be translated as "सुरक्षा जमा".
+- Monthly Rent should be translated as "मासिक किराया".
+- Property should be translated as "संपत्ति".
+- Termination should be translated as "समझौता समाप्त करना".
+- Written Notice should be translated as "लिखित सूचना".
 
-Landlord = मकान मालिक
-Tenant = किरायेदार
-Rental Agreement = किराया समझौता
-Termination = समझौता समाप्त करना
-Security Deposit = सुरक्षा जमा
-Monthly Rent = मासिक किराया
-Property = संपत्ति
+FACT PRESERVATION:
 
-FACT PROTECTION:
+If the input contains:
 
-Never change:
-
-- Names
-- Dates
-- Numbers
-- Currency amounts
-- Places
-- Roles
-- Facts
-- Obligations
-
-Arun Kumar must remain Arun Kumar.
-
-Rahul Nair must remain Rahul Nair.
-
-Rs. 12,000 must remain Rs. 12,000.
-
-Rs. 24,000 must remain Rs. 24,000.
-
-Kochi, Kerala must remain Kochi, Kerala.
-
-July 30, 2026 must remain July 30, 2026.
-
-August 1, 2026 must remain August 1, 2026.
-
-11 months must remain 11 months.
-
-30 days must remain 30 days.
-
-Never calculate dates.
-
-Never infer missing dates.
-
-Never infer missing obligations.
-
-Never add facts.
-
-Never add legal rights.
-
-Never add legal advice.
-
-If the original says:
-
-"Not specified in the document."
-
-preserve that meaning.
-
+- Person names → keep them unchanged.
+- Dates → keep the same date and year.
+- Numbers → keep the same numbers.
+- Currency amounts → keep the same amounts.
+- Places → keep the same places.
+- Roles → preserve the same roles.
+- Obligations → preserve the same obligations.
+- Risks → preserve the same risks.
+- Headings → preserve their meaning.
+- Missing information → do not invent it.
 FORMATTING:
 
-Keep the same:
+Preserve the original structure.
+
+Keep:
 
 - Numbering
 - Headings
 - Bullet points
-- Paragraph structure
+- Paragraph order
 - Markdown formatting
+- Important values
+- Names
+- Dates
+- Numbers
 
-LANGUAGE QUALITY:
+Do not add introductory text.
 
-For Malayalam:
+Do not write:
 
-Use natural modern Malayalam.
-
-Write as if explaining the document
-to an ordinary Malayalam-speaking person.
-
-Do NOT produce machine-translated Malayalam.
-
-Do NOT use highly literary,
-archaic or uncommon Malayalam words.
-
-For Hindi:
-
-Use natural modern Hindi.
-
-Do NOT use overly formal or archaic Hindi.
-
-Use simple everyday language.
-
-Return ONLY the translated legal analysis.
-
-Do NOT write:
 "Here is the translation."
 
-Do NOT write:
+Do not write:
+
 "Translation:"
 
-Legal Analysis:
+Do not write:
 
-{analysis}
-"""
+"Here is the translated text."
+Return ONLY the translated legal analysis.
 
+
+
+        
+
+        Legal Analysis:{analysis}
+        """
     response = client.chat.completions.create(
-        model="qwen/qwen3.6-27b",
-        reasoning_effort="none",
+        model = "qwen/qwen3.6-27b",
+       
         messages=[
             {
-                "role": "user",
-                "content": prompt
+                "role":"user",
+                "content":prompt
             }
         ]
     )
 
     translated_text = response.choices[0].message.content
 
-    translated_text = clean_ai_response(
-        translated_text
-    )
+    translated_text = re.sub(
+        r"<think>.*?</think>",
+        "",
+        translated_text,
+        flags=re.DOTALL | re.IGNORECASE
+    ).strip()
+    
 
-    return Response(
-        {
-            "translated_text":
-            translated_text
-        }
-    )
+    return Response({
+        "translated_text":translated_text
+    })
