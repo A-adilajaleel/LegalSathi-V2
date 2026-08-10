@@ -253,32 +253,52 @@ def translate_document(request):
         )
 
     prompt = f"""
-       You are an expert legal translator.
+     You are an expert legal translator for LegalSathi AI.
+
 Translate the following legal analysis into {language}.
 
-Instructions:
+IMPORTANT INSTRUCTIONS:
 
-- Preserve the exact meaning.
-- Translate ONLY the given content.
-- Do NOT add, remove, summarize, or assume information.
-- Keep the same headings, numbering, and bullet points.
-- Use natural, fluent {language}.
-- Avoid literal word-for-word translation.
-- Do NOT mix English with {language} unless it is a proper noun.
-- Keep names, places, dates, and currency values unchanged.
-- Keep legal terminology accurate and natural.
-- Return ONLY the translated text.
-- Do NOT include explanations, notes, or comments.
+- Translate ONLY the provided legal analysis.
+- Preserve the exact meaning of the original text.
+- Do not add, remove, summarize, or invent any information.
+- Keep the same headings, numbering, bullet points, and markdown formatting.
 - Translate every sentence completely.
-- Never change the identity or role of any person.
-- Do not confuse the Landlord and Tenant.
-- Translate role names naturally into the target language when appropriate.
+- Use natural, fluent, simple {language} that an ordinary person can easily understand.
+- Avoid literal or awkward word-for-word translation.
+- Do not mix English with {language} unless the English term is a proper noun or is necessary for clarity.
+
+ROLE AND NAME RULES:
+- Never change the identity of any person.
+- Never confuse the Landlord and Tenant.
+- Translate role names naturally into the target language.
+- In Malayalam, translate "Landlord" as "വീട്ടുടമ".
+- In Malayalam, translate "Tenant" as "വാടകക്കാരൻ".
+- In Malayalam, translate "Rental Agreement" as "വാടക കരാർ".
+- In Malayalam, translate "Termination" as "കരാർ അവസാനിപ്പിക്കൽ".
+- In Hindi, translate "Landlord" as "मकान मालिक".
+- In Hindi, translate "Tenant" as "किरायेदार".
+- In Hindi, translate "Rental Agreement" as "किराया समझौता".
+- In Hindi, translate "Termination" as "समझौता समाप्त करना".
+- Do not use uncommon or archaic words when a simple common word is available.
+
+FACT AND NUMBER RULES:
 - Never change names.
+- Never change dates.
 - Never change numbers.
-- Never infer missing information.
-- If a sentence is unclear, translate it literally instead of guessing.
-- Preserve markdown formatting (**, headings, numbering, bullet points).
-- Output ONLY the translation.
+- Never change currency amounts.
+- Keep places unchanged.
+- Never calculate or infer missing dates.
+- Never infer missing facts or obligations.
+- If the original says "Not specified in the document", preserve that meaning.
+- Do not provide additional legal advice or commentary.
+
+LANGUAGE QUALITY:
+- Malayalam must sound like natural everyday Malayalam, not machine-translated Malayalam.
+- Hindi must sound like natural everyday Hindi, not machine-translated Hindi.
+- Keep legal meaning accurate while making the language easy to understand.
+
+Return ONLY the translated legal analysis.
 
 
         
