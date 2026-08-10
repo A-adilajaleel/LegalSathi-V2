@@ -280,16 +280,7 @@ Instructions:
 - Preserve markdown formatting (**, headings, numbering, bullet points).
 - Output ONLY the translation.
 
-Malayalam-specific instructions:
-- Use natural, commonly understood Malayalam.
-- Translate "Landlord" as "വീട്ടുടമ".
-- Translate "Tenant" as "വാടകക്കാരൻ".
-- Translate "Rental Agreement" as "വാടക കരാർ".
-- Translate "Security Deposit" as "സെക്യൂരിറ്റി ഡെപ്പോസിറ്റ്" or "സുരക്ഷാ നിക്ഷേപം".
-- Translate "Termination" as "കരാർ അവസാനിപ്പിക്കൽ".
-- Do not use uncommon or archaic Malayalam words such as "ജമീന്ദാർ" or "ഭാടക്കാരൻ".
-- Keep monetary amounts natural, for example "₹12,000" or "12,000 രൂപ".
-- Use simple Malayalam that an ordinary person can easily understand.
+
         
 
         Legal Analysis:{analysis}
