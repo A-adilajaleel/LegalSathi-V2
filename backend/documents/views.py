@@ -28,7 +28,7 @@ def analyze_legal_text(extracted_text):
     5. Potential Risks
 - Mention only risks that can reasonably be inferred from the document.
 - Do not invent hypothetical risks.
-- If none are present, write "No explicit risks mentioned in the document.
+- If none are present, write "No explicit risks mentioned in the document."
 
 
     Important Rules:
@@ -270,8 +270,9 @@ Instructions:
 - Return ONLY the translated text.
 - Do NOT include explanations, notes, or comments.
 - Translate every sentence completely.
-- Never change the role of any person.
-- Never change Landlord and Tenant.
+- Never change the identity or role of any person.
+- Do not confuse the Landlord and Tenant.
+- Translate role names naturally into the target language when appropriate.
 - Never change names.
 - Never change numbers.
 - Never infer missing information.
