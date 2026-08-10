@@ -306,7 +306,7 @@ Return ONLY the translated legal analysis.
         Legal Analysis:{analysis}
         """
     response = client.chat.completions.create(
-        model = "llama-3.3-70b-versatile",
+        model = "qwen/qwen3.6-27b",
        
         messages=[
             {
