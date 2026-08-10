@@ -1,32 +1,33 @@
 # ⚖️ Legal Sathi AI
 
-Legal Sathi AI is an AI-powered legal document assistant that helps users understand complex legal documents in simple and easy-to-understand language.
+Legal Sathi AI is an AI-powered legal document assistant that helps users understand complex legal documents in simple, easy-to-understand language.
 
 Users can upload PDF or image documents, and the application extracts the text, analyzes it using AI, simplifies complex legal terminology, and provides explanations in multiple languages.
 
 ---
 
-## 🌐 Live Demo
+# 🌐 Live Demo
 
 https://legal-sathi-v2.vercel.app/
+
 ---
 
-## ✨ Features
+# ✨ Features
 
-- 📄 Upload legal documents in PDF or Image format
-- 👁️ Vision AI-powered text extraction for images and scanned PDFs
+- 📄 Upload legal documents in PDF or image format
+- 👁️ AI-powered OCR for scanned PDFs and images
 - 📑 Text extraction from digital PDFs using PyMuPDF
 - 🤖 AI-powered legal document analysis
-- 📝 Simplifies complex legal terminology into plain English
-- 🌍 AI-powered translation support (Beta) (English, Malayalam & Hindi)
+- 📝 Converts complex legal language into simple, easy-to-understand explanations
+- 🌍 Multi-language support (English, Malayalam, and Hindi)
 - ⚡ Fast document processing
 - 🔒 Secure document handling
 
 ---
 
-## 🛠️ Tech Stack
+# 🛠️ Tech Stack
 
-### Frontend
+## Frontend
 
 - React.js
 - Vite
@@ -35,20 +36,20 @@ https://legal-sathi-v2.vercel.app/
 - Axios
 - React Markdown
 
-### Backend
+## Backend
 
 - Django
 - Django REST Framework
-- Groq API (LLaMA)
+- Groq API (LLaMA 3.3 70B)
 - PyMuPDF
 - Pillow
 - Python-dotenv
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
-```
+```text
 LegalSathi-v2/
 │
 ├── backend/
@@ -71,19 +72,20 @@ LegalSathi-v2/
 ## 🚀 How It Works
 
 1. Upload a legal document (PDF or Image).
-2. 
-The application extracts the document text:
 
-- Digital PDFs → using **PyMuPDF**
-- Images & Scanned PDFs → using a **Vision AI Model**
-  
-3.The extracted content is analyzed using an AI-powered Large Language Model (LLM).
-4. Complex legal terminology is converted into simple English.
-5. Users can optionally translate the simplified analysis into Malayalam or Hindi.
+2. Extract text from the uploaded document:
+   - Digital PDFs → **PyMuPDF**
+   - Scanned PDFs & Images → **Vision AI**
+
+3. Analyze the extracted content using a Large Language Model (LLM).
+
+4. Convert complex legal terminology into simple English.
+
+5. Translate the simplified explanation into English, Malayalam, or Hindi.
 
 ---
 
-## 🌍 Translation Support(Beta)
+### 🌍 Multi-language Support
 
 The AI first generates a simplified English explanation of the legal document.
 
@@ -95,7 +97,7 @@ Users can then choose their preferred language:
 
 Translations are generated on demand using AI and are usually available within a few seconds.
 
-> **Note:** AI-generated translations are experimental and may occasionally contain inaccuracies. For legal accuracy, always refer to the English analysis.
+> **Note:** AI-generated translations may vary slightly depending on the document. For legal accuracy, always refer to the original legal document.
 
 ---
 
